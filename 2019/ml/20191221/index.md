@@ -111,51 +111,110 @@ x는 -(dy/dx)에 작은 값(learning rate)를 곱한 값만큼 이동시킨다.
 
 이는 회귀선 품질 정도를 `확률분포`로 표현하는 방법이다.  
 
-## 1.1 Least Square props & cons
+- 잔차의 크기가 작을 수록 확률이 높은 확률식을 정의
+- 정규분포를 따른다고 가정
 
-cons: 수식적으로 풀 수 없거나 난해한 경우, 경험적으로 찾는 것도 가능 -> 뉴럴넷
+이 때 `확률분포함수`는 다음과 같다.  
 
-## 1.2. Gradient Descent
+![확률분포함수](../assets/01/8.png)
 
-parameter를 미분에 기반하여 찾음(sign of loss)
+이 Likelihood 중 가장 큰 녀석이 품질 좋은 모델이 될 것이다.  
+MLE는 확률을 최대화 하는 파라미터를 찾는 과정이 된다.  
 
-gd -> trial and error
+- 잔차가 작을 수록 확률이 높음
+- 이것도 경사하강법으로 탐색
 
-최소제곱법을 쓰는 이유? 제곱을 하면 에러의 폭이 큰데, 에러의 폭이 커지면 하강을 더 많이 할 지 적게 할 지 결정하기 쉬움.
+## 5.2. Negative Log Likelihood
 
-learning rate가 작으면 학습 속도가 느려짐, 그러나 커지면 explosion 발생할 가능성이 높음
--> 그런 이유로 충분히 작은 값들을 사용함.
-(최저점 지나갈 가능성 존재)
+로그는 단조 증가 함수이다. 이를 이용한 것이다.  
+함수 f(x)의 최저점은 log(f(x))의 최저점과 위치가 같다. 로그함수는 경사하강법 적용에 유리하다. (단조 증가)  
 
-## 1.2.1 adaptive gradient descent
+또한 잔차 확률이나 최소제곱법으로 정의한 회귀선 품질 기준이 동일하다.  
 
-naive한 방법이 아닌 이전의 변위를 합산해 하강 rate를 결정해 찾아가는 방법
+이 방법은 임의의 확률 기반의 loss에 이용할 수 있으며, NLL에서의 loss는 확률이 작을 수록 loss가 크다.  
 
-## 1.2.2 결론
+# 6. Regularization
 
-결정해를 도출 할 수 없는(비선형 미분 방정식 같은) 식을 경험적으로 찾기 위한 방법
+과적합(overfitting) 문제를 해결하는 방법은 대표적으로 다음과 같은 것들이 있다.  
 
-- mini ei^2 => 학습 품질
-- 학습법 (LS, GD)
+- 훈련 데이터 양을 늘린다 -> 시간, 비용 많이 듬
+- feature 제거 -> model selection, 종속 변수와 연관이 낮은 feature 제거
+- Regularization
 
-# 2. MLE(Maximum Likelihood Estimation)
+여기서는 regularization을 정리함.  
 
-# 3. NLL
+p-norm은 다음과 같이 정의된다.  
 
-a, b와 연관 관계가 없기 때문에, 한 axis를 고정하고 각각의 optima를 구하는 것들이 이 방법들임.
+![p놈](../assets/01/9.png)
 
-하지만 a와 b가 관계가 있는, ab같은 것이 bilinear라고 말함.  
+* `p = 0`이면 0이 아닌 차원의 개수이고,
+* `p = 1`이면 `맨하탄 노름(Manhattan norm or taxicab norm)`이고, 
+* `p = 2`이면 `L2 Norm(Euclidean Distance)`이다.  
 
-# 4. Loss, regularization cost
+목적식 objective를 loss와 regularization cost의 합의로 정의하고 다음을 정리해보자.  
 
-Loss: 식을 잘 맞췄냐
-Regularization cost: 
+## 6.1. L1 Regularization
 
-fat data: 변수가 data보다 많음
+L1은 변수 선택의 효과를 얻을 수 있는 방법이다.  
+맨하탄 노름의 정의에서도 알 수 있듯, 0이면 변수를 사용하지 않는다.  
 
-Evaluation: table 오탈자 존재
+![목적식](../assets/01/11.png)
 
-# Why we use RMSE loss instead MAP
+여기서 람다는 loss와 regularization의 중요도를 조절하는 사용자 지정 변수이다. (딥러닝의 weight???)  
 
-MAP은 절대값이라 최저점 근처에서 속도 저하가 없음
+L1의 가중치 변화를 보자.  
 
+![L1](../assets/01/10.png)
+
+L1의 특성상 일정한 크기로 0을 향하기 때문에 대부분의 계수가 0이다. 즉, 몇몇의 feature만 가지고 값을 예측하는 것이다.  
+이런 이유로 변수가 데이터 개수보다 많은 `fat data`나, 중복된 feature가 존재하는 경우 필요하다.  
+
+이를 활용하는 것이 `logistic regression`이다.
+
+## 6.2. L2 Regularization
+
+![목적식](../assets/01/12.png)
+
+`L2`는 regularization cost 부분에서 유독 튀는 값이 없도록 유도한다.  
+
+L2의 가중치 변화를 보자.
+
+![L2](../assets/01/13.png)
+
+0으로 이동한다는 점은 L1과 같으나, 0에 가까워질 수록 0으로 다가가는 크기가 작아진다. 따라서 L2는 L1과 달리 feature의 가중치를 0으로 만드는 것이 아니라 0에 가깝게 만들어 영향력이 낮은 feature까지 사용하여 더 품질 높은 예측값을 뽑으려는 의도이다.  
+
+이를 이용하는 선형회귀를 `ridge regression`이라고 부른다.  
+
+# 7. Evaluation
+
+Evaluation metric은 사후 품질 평가로 사용되며, 이외에도 경사하강법에서 파라미터 이동 방향을 결정하는 지표로도 사용된다.  
+
+여러가지 평가 방법을 정리해보자.  
+
+## 7.1. R²
+
+> y의 분산 대비 잔차 비율이 낮을 수록 모델이 데이터를 잘 설명함!
+
+* `R² <= 1`로 1에 근접할 수록 잔차가 없다 -> 훌륭한 모델
+
+## 7.2. Adjusted R²
+
+* 변수의 개수를 고려한 `R²`. 변수 개수에 패널티가 주어진다.  
+
+## 7.3. Average Error
+
+* 잔차의 크기가 크더라도 평균은 0일 수 있음
+
+## 7.4. Mean Absolute Error(MAE)
+
+* yi의 크기와 관계 없이 잔차의 영향력은 모두 동등
+
+## 7.5. Mean Absolute Percentage Error(MAPE)
+
+* yi의 크기를 고려한 잔차의 상대적 크기를 계산
+* MAPE는 절대 값이라 최저점 근처에서 속도 저하가 없기 때문에 RMSE가 더 잘 쓰임
+
+## 7.6. Root Mean Squared Error(RMSE)
+
+* ei의 크기가 클 경우 더 큰 패널티를 얻음
+* RMSE는 잔차와 yi의 스케일을 동일하게 맞춤
