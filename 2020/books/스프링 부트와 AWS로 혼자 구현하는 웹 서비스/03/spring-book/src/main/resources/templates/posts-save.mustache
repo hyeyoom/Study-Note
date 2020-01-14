@@ -1,0 +1,23 @@
+{{>layout/header}}
+<h1>게시글 등록</h1>
+<div class="col-md-12">
+    <div class="col-md-4">
+        <form>
+            <div class="form-group">
+                <label for="title">title</label>
+                <input type="text" class="form-control" id="title" placeholder="title here"/>
+            </div>
+            <div class="form-group">
+                <label for="author">author</label>
+                <input type="text" class="form-control" id="author" placeholder="author here"/>
+            </div>
+            <div class="form-group">
+                <label for="content">content</label>
+                <textarea class="form-control" id="content" placeholder="content here"></textarea>
+            </div>
+            <a href="/" role="button" class="btn btn-secondary">cancel</a>
+            <button type="button" class="btn btn-primary" id="btn-save">register</button>
+        </form>
+    </div>
+</div>
+{{>layout/footer}}
