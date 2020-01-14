@@ -1,0 +1,18 @@
+server:
+  port: 12345
+
+spring:
+
+  profiles:
+    active: local
+
+
+---
+# local profile
+spring:
+  profiles: local
+  jpa:
+    show-sql: true
+  h2:
+    console:
+      enabled: true
