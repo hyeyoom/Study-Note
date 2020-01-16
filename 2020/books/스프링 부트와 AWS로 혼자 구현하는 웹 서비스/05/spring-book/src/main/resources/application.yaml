@@ -1,0 +1,22 @@
+server:
+  port: 12345
+
+spring:
+  profiles:
+    active: local
+
+
+---
+# local profile
+spring:
+  profiles:
+    include:
+      - local
+      - oauth
+  jpa:
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+  session:
+    store-type: jdbc

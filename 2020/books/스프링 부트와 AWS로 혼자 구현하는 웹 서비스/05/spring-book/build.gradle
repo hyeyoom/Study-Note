@@ -1,0 +1,38 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.2.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+	id 'java'
+}
+
+group = 'com.github.hyeyoom'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.2.2.RELEASE'
+	implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-mustache', version: '2.2.2.RELEASE'
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-client', version: '2.2.2.RELEASE'
+	compile group: 'org.springframework.session', name: 'spring-session-jdbc', version: '2.2.0.RELEASE'
+	testCompile('org.springframework.security:spring-security-test')
+}
+
+test {
+	useJUnitPlatform()
+}
