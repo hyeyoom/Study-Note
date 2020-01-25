@@ -31,3 +31,12 @@
 - OnCollisionEnter() 일반 충돌
 - OnTriggerEnter() 트리거 충돌
 - Instantiate()로 오브젝트 복사
+
+# Chap 8.
+
+- 프레임 고정에 맞춰 게임 로직을 짜면 안됨
+  - 클라이언트 성능별로 다른 결과가 나옴 엌ㅋㅋ
+- 여긴 UI도 게임 오브젝트네
+- PlayerPrefs는 Set 같은 녀석임
+- `SceneManager.LoadScene()`은 씬 입력을 받아서 씬을 로딩한다
+  - 초기화에 쓰기 좋음
