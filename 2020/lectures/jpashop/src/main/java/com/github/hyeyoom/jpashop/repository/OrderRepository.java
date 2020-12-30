@@ -70,4 +70,25 @@ public class OrderRepository {
         }
         return query.getResultList();
     }
+
+    public List<Order> findAllWithMemberDelivery() {
+        return em.createQuery(
+                "SELECT o " +
+                        "FROM Order o " +
+                        "JOIN FETCH o.member m " +
+                        "JOIN FETCH o.delivery d",
+                Order.class
+        ).getResultList();
+    }
+
+    // 가독성, 재사용성 구림, API 스펙에 fit하게 되서 침투됨.
+    public List<OrderSimpleQueryDto> findOrderDtos() {
+        return em.createQuery(
+                "SELECT new com.github.hyeyoom.jpashop.repository.OrderSimpleQueryDto(o.id, m.name, o.orderedDate, o.status, d.address)" +
+                        "FROM Order o " +
+                        "JOIN o.member m " +
+                        "JOIN o.delivery d",
+                OrderSimpleQueryDto.class
+        ).getResultList();
+    }
 }
