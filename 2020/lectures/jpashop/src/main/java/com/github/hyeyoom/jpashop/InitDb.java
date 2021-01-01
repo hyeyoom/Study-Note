@@ -1,8 +1,10 @@
 package com.github.hyeyoom.jpashop;
 
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.github.hyeyoom.jpashop.domain.*;
 import com.github.hyeyoom.jpashop.domain.item.Book;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,12 @@ public class InitDb {
     public void init() {
         initService.dbInit1();
         initService.dbInit2();
+    }
+
+    @Bean
+    public Hibernate5Module hibernate5Module() {
+        final Hibernate5Module module = new Hibernate5Module();
+        return module;
     }
 
     @Component
