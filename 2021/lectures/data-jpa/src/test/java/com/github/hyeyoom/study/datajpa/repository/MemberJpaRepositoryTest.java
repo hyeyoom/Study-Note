@@ -18,14 +18,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MemberJpaRepositoryTest {
 
     @Autowired
-    MemberRepository repository;
+    MemberJpaRepository repository;
 
     @PersistenceContext
     private EntityManager em;
 
     @Test
     void testMember() throws Exception {
-
         final Member member = new Member("Hello");
         repository.save(member);
 
@@ -36,7 +35,6 @@ class MemberJpaRepositoryTest {
         assertThat(foundMember).isNotNull();
         assertThat(member.getId()).isEqualTo(foundMember.getId());
         assertThat(member).isEqualTo(foundMember);
-
     }
 
     @Test
@@ -58,6 +56,31 @@ class MemberJpaRepositoryTest {
         for (Member member : members) {
             System.out.println(member);
         }
+        // then
+    }
+
+    @Test
+    void findByPage() throws Exception {
+
+        // given
+        repository.save(new Member("m1", 10, null));
+        repository.save(new Member("m2", 10, null));
+        repository.save(new Member("m3", 10, null));
+        repository.save(new Member("m4", 10, null));
+        repository.save(new Member("m5", 10, null));
+
+        // when
+        final int age = 10;
+        final int offset = 2;
+        final int limit = 3;
+
+        final List<Member> members = repository.findByPage(age, offset, limit);
+        final long count = repository.totalCount(age);
+
+        for (Member member : members) {
+            System.out.println(member);
+        }
+
         // then
     }
 }
