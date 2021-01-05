@@ -24,7 +24,7 @@ public class MemberJpaRepository {
     }
 
     public List<Member> findAll() {
-        return em.createQuery("SELECT m FROM Member m", Member.class).getResultList();
+        return em.createQuery("SELECT m FROM Member m LEFT JOIN FETCH m.team t", Member.class).getResultList();
     }
 
     public Optional<Member> findById(Long id) {
@@ -63,5 +63,11 @@ public class MemberJpaRepository {
         return em.createQuery("SELECT count(m) FROM Member m WHERE m.age = :age", Long.class)
                 .setParameter("age", age)
                 .getSingleResult();
+    }
+
+    public int bulkAgeIncrement(int age) {
+        return em.createQuery("UPDATE Member m SET m.age = m.age + 1 WHERE m.age >= :age")
+                .setParameter("age", age)
+                .executeUpdate();
     }
 }
