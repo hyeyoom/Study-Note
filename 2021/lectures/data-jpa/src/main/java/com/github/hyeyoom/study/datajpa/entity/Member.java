@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"team"})
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue
