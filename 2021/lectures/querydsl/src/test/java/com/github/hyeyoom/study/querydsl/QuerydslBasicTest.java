@@ -1,10 +1,16 @@
 package com.github.hyeyoom.study.querydsl;
 
+import com.github.hyeyoom.study.querydsl.dto.MemberDto;
+import com.github.hyeyoom.study.querydsl.dto.QUserDto;
+import com.github.hyeyoom.study.querydsl.dto.UserDto;
 import com.github.hyeyoom.study.querydsl.entity.Member;
 import com.github.hyeyoom.study.querydsl.entity.QMember;
 import com.github.hyeyoom.study.querydsl.entity.Team;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -19,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
-
 import java.util.List;
 
 import static com.github.hyeyoom.study.querydsl.entity.QMember.member;
@@ -373,6 +378,186 @@ public class QuerydslBasicTest {
                 .fetch();
         for (String s : fetch) {
             System.out.println("s = " + s);
+        }
+    }
+
+    @DisplayName("프로젝션 - 단순")
+    @Test
+    void testProjectionSimple() throws Exception {
+        final List<String> fetch = query
+                .select(member.username)
+                .from(member)
+                .fetch();
+        for (String s : fetch) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @DisplayName("프로젝션 - 튜플")
+    @Test
+    void testProjectionTuple() throws Exception {
+        final List<Tuple> tuples = query
+                .select(member.username, member.age)
+                .from(member)
+                .fetch();
+        for (Tuple tuple : tuples) {
+            System.out.println("tuple = " + tuple);
+        }
+    }
+
+    @DisplayName("프로젝션 - DTO by JPQL")
+    @Test
+    void testProjectionDtoByJPQL() throws Exception {
+
+        final List<MemberDto> results = em
+                .createQuery(
+                        "SELECT new com.github.hyeyoom.study.querydsl.dto.MemberDto(m.username, m.age) FROM Member m",
+                        MemberDto.class)
+                .getResultList();
+
+        for (MemberDto result : results) {
+            System.out.println("result = " + result);
+        }
+    }
+
+    @DisplayName("프로젝션 - DTO QueryDSL - Setter")
+    @Test
+    void testProjectionDtoBySetter() throws Exception {
+        final List<MemberDto> dtos = query
+                .select(Projections.bean(MemberDto.class, member.username, member.age))
+                .from(member)
+                .fetch();
+        for (MemberDto dto : dtos) {
+            System.out.println("dto = " + dto);
+        }
+    }
+
+    @DisplayName("프로젝션 - DTO QueryDSL - fields")
+    @Test
+    void testProjectionDtoByFields() throws Exception {
+        final List<MemberDto> dtos = query
+                .select(Projections.fields(MemberDto.class, member.username, member.age))
+                .from(member)
+                .fetch();
+        for (MemberDto dto : dtos) {
+            System.out.println("dto = " + dto);
+        }
+    }
+
+    @DisplayName("프로젝션 - DTO QueryDSL - constructor")
+    @Test
+    void testProjectionDtoByConstructor() throws Exception {
+        final List<MemberDto> dtos = query
+                .select(Projections.constructor(MemberDto.class, member.username, member.age))
+                .from(member)
+                .fetch();
+        for (MemberDto dto : dtos) {
+            System.out.println("dto = " + dto);
+        }
+    }
+
+    @DisplayName("프로젝션 - Alias")
+    @Test
+    void testProjectionDtoByAlias() throws Exception {
+
+        final List<UserDto> dtos = query
+                .select(Projections.fields(
+                        UserDto.class,
+                        member.username.as("name"), member.age)
+                )
+                .from(member)
+                .fetch();
+        for (UserDto dto : dtos) {
+            System.out.println("dto = " + dto);
+        }
+    }
+
+    @DisplayName("쿼리 프로젝션으로 DTO - querydsl 컴파일 필요")
+    @Test
+    void testQueryProjection() throws Exception {
+        final List<UserDto> dtos = query
+                .select(new QUserDto(member.username, member.age))
+                .from(member)
+                .fetch();
+
+        for (UserDto dto : dtos) {
+            System.out.println("dto = " + dto);
+        }
+    }
+
+    @DisplayName("동적 쿼리 - 불리언빌더")
+    @Test
+    void dynamicQueryWithBooleanBuilder() throws Exception {
+        final String usernameParam = "m1";
+        final Integer ageParam = 10;
+
+        final List<Member> result = searchMember1(usernameParam, ageParam);
+        for (Member m : result) {
+            System.out.println("m = " + m);
+        }
+    }
+
+    private List<Member> searchMember1(String usernameCond, Integer ageCond) {
+        final BooleanBuilder builder = new BooleanBuilder();
+        if (usernameCond != null) {
+            builder.and(member.username.eq(usernameCond));
+        }
+        if (ageCond != null) {
+            builder.and(member.age.eq(ageCond));
+        }
+        return query
+                .selectFrom(member)
+                .where(builder)
+                .fetch();
+    }
+
+    @DisplayName("동적 쿼리 - Where 다중 파라미터")
+    @Test
+    void dynamicQueryWithWhereClause() throws Exception {
+        final String usernameParam = "m1";
+        final Integer ageParam = 10;
+
+        final List<Member> result = searchMember2(usernameParam, ageParam);
+        for (Member m : result) {
+            System.out.println("m = " + m);
+        }
+    }
+
+    private List<Member> searchMember2(String usernameCond, Integer ageCond) {
+        return query
+                .selectFrom(member)
+                .where(allEq(usernameCond, ageCond))
+                .fetch();
+    }
+
+    private BooleanExpression usernameEq(String usernameCond) {
+        return usernameCond != null ? member.username.eq(usernameCond) : null;
+    }
+
+    private BooleanExpression ageEq(Integer ageCond) {
+        return ageCond != null ? member.age.eq(ageCond) : null;
+    }
+
+    private BooleanExpression allEq(String usernameCond, Integer ageCond) {
+        return usernameEq(usernameCond).and(ageEq(ageCond));
+    }
+
+    @DisplayName("벌크 연산 - 수정")
+    @Test
+    void testBulkUpdate() throws Exception {
+        final long affectedRows = query
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+        System.out.println("affectedRows = " + affectedRows);
+
+        em.flush();
+        em.clear();
+
+        final List<Member> members = query.selectFrom(member).fetch();
+        for (Member member1 : members) {
+            System.out.println("member1 = " + member1);
         }
     }
 }
