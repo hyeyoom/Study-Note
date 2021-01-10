@@ -560,4 +560,6 @@ public class QuerydslBasicTest {
             System.out.println("member1 = " + member1);
         }
     }
+
+
 }
